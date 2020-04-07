@@ -39,4 +39,10 @@ echo "$list" | tail -n$(($n-$pos+1)) >  /tmp/vlc.m3u
 echo "$list" | head -n$(($pos-1))    >> /tmp/vlc.m3u
 
 # launch playlist
-IFS=$'\n'; read -d '' -r -a files < /tmp/vlc.m3u; vlc "${files[@]}"
+ARGS=""
+NB=$(( $n - $(echo "$list" | grep -e '\.mkv' -e '\.mp4' | wc -l) ))
+if [ "$NB" -ge 15 ]; then
+	ARGS="--no-play-and-pause"
+fi
+
+IFS=$'\n'; read -d '' -r -a files < /tmp/vlc.m3u; vlc $ARGS "${files[@]}"
