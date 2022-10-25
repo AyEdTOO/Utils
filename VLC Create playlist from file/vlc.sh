@@ -6,8 +6,8 @@ extensions_video='avi|mp4|mkv|m4v|mov|mpg|mpeg|wmv|3gp'
 extensions_audio='ogg|opus|flac|m4a|mp3|wav'
 extensions="@(${extensions_video}|${extensions_audio})"
 
-# kill other instances of vlc
-killall vlc; sleep 0.1
+# kill other instances of vlc and mpv
+killall vlc mpv; sleep 0.1
 
 # launch empty vlc if no argument provided
 if [ -z "$1" ]; then
@@ -30,6 +30,13 @@ pos=$(echo "$list" | grep -n -F -- "${basename}" | cut -d: -f1)
 # if the filename does not have one of the extension above, launch vlc with provided filename
 if [ -z "$pos" ]; then
 	vlc -- "${filename}"
+	exit
+fi
+
+# launch mpv instead of vlc for a video only playlist
+if [ -z "$(ls "${dirname}"/*.@(${extensions_audio}) -1 2>/dev/null)" ]; then
+	IFS=$'\n' files=($list)
+	mpv --playlist-start=$(($pos-1)) "${files[@]}"
 	exit
 fi
 
